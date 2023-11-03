@@ -172,7 +172,7 @@ export const operatorsWhere = async (bot: Telegraf<Context<Update>> ): Promise<a
           
           if (findAgentlock[0] && !findAgent.addToblockTable) {
             await  agentslockEntity.update(
-              { id: findAgentlock[0].id },
+              { agent_id: findAgentlock[0].agent_id },
               {
                 agentStateDuration: agents[i]['ct:agentStateDuration'][0],
               },
@@ -235,7 +235,7 @@ export const operatorsWhere = async (bot: Telegraf<Context<Update>> ): Promise<a
             });
           if (findAgentlock[0] && !findAgent.addToblockTable) {
             await agentslockEntity.update(
-              { id: findAgentlock[0].id },
+              { agent_id : findAgentlock[0].agent_id },
               {
                 agentState: agents[i]['ct:agentState'][0],
                 agentStateDuration: agents[i]['ct:agentStateDuration'][0],
