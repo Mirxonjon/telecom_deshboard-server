@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import {  CacheModuleOptions, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { config } from './config';
@@ -8,6 +8,7 @@ import { EventModule } from './module/events/events.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { TelegrafModule } from 'nestjs-telegraf';
 import { AgentsModule } from './module/agents/agents.module';
+import { CacheModule } from '@nestjs/cache-manager';
 // import { CategoryInfoModule } from './module/categories_Info/users.module';
 // import { SoapModule } from './module/soap/soap.module';
 
@@ -20,9 +21,15 @@ import { AgentsModule } from './module/agents/agents.module';
       token: '5994786340:AAHQOpj10D8Bi0XhgQpYD14hDoHogp3Q0z8',
     }),
     UsersModule,
-    // SoapModule,
+
     EventModule,
-    AgentsModule
+    AgentsModule,
+    CacheModule.registerAsync({
+      isGlobal: true,
+      useFactory: ( ): CacheModuleOptions => ({
+        ttl:3600000,
+      })
+    })
   ],
   controllers: [],
   providers: [],

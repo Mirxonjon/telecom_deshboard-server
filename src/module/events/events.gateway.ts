@@ -7,7 +7,7 @@ import {
   MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { Injectable, Req } from '@nestjs/common';
+import {  Inject, Injectable, Req } from '@nestjs/common';
 import {  Cron, CronExpression, Interval,  } from '@nestjs/schedule';
 import { GroupsEntity } from 'src/entities/group.entity';
 import axios from 'axios';
@@ -19,6 +19,8 @@ import {
 import { agentslockEntity } from 'src/entities/agentslock.entity';
 import { fetchStatisticByGroup, operatorsWhere } from 'src/utils/fetchEvery1hour';
 import { Telegraf } from 'telegraf';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 @WebSocketGateway({
@@ -28,8 +30,9 @@ import { Telegraf } from 'telegraf';
 })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
+  readonly #_cache : Cache
 
-  private interval;
+
   async handleConnection(client: Socket) {
     // return 'Connected to the server.'
     this.server.emit('connected', 'Connected to the server.');
@@ -39,8 +42,9 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   public bot: Telegraf;
 
-  constructor() {
+  constructor(@Inject(CACHE_MANAGER) cache: Cache) {
     this.bot = new Telegraf('5994786340:AAHQOpj10D8Bi0XhgQpYD14hDoHogp3Q0z8');
+    this.#_cache = cache
   }
 
   @Cron("59 23 * * *") 
@@ -48,23 +52,22 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     console.log('okkkk' , new Date());
     fetchStatisticByGroup()
   }
+
+
+
+  @Cron(CronExpression.EVERY_10_SECONDS) 
+  async handleAgentsAtTheMomentAddCash() {
+    const operatorsWhereatThemoment :any = await Promise.all(await operatorsWhere(this.bot));
+
+    await this.#_cache.set('lockOperators' , operatorsWhereatThemoment ,3600000)
+
+  }
  
 
   @SubscribeMessage('agentsLockAtTheMoment')
-  async handleAgentsAtTheMoment(@Req() req:Request, @MessageBody('id') id: number) {
-    // console.log(req);
-    // let operatorsWhereatThemoment = []
-  //   setTimeout(async() => {
-  //     console.log("Birinchi sorov yakunlandi");
-  //     operatorsWhereatThemoment = await Promise.all(await operatorsWhere(this.bot))
-  //     // callback1();
-  // }, 2000);
-    
-    // console.log('okkkk' , new Date());
-    
-    const operatorsWhereatThemoment = await Promise.all(await operatorsWhere(this.bot));
-
-    return operatorsWhereatThemoment;
+  async handleAgentsAtTheMoment() {
+    const data = await this.#_cache.get('lockOperators')
+    return data;
   }
 
   @SubscribeMessage('agentsLock')
@@ -360,7 +363,7 @@ arrdate.forEach(e =>{
   }
 
   handleDisconnect(client: Socket) {
-    clearInterval(this.interval);
+    clearInterval('aa');
   }
 
   //   @Timeout(5000)

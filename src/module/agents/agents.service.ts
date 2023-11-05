@@ -22,8 +22,25 @@ export class AgentsService {
                 create_data : 'DESC'
             }
         })
+        const findBlocks = await agentslockEntity.find({
+          where : {
+            banInfo :'block'
+          },
 
-        return findBlockAgents
+      })
+      const findTime = await agentslockEntity.find({
+        where : {
+          banInfo :'time'
+        },
+
+    })
+
+        return {
+          findBlockAgents ,
+            findBlocks: findBlocks.length ,
+            findTime : findTime.length,
+            allBlockAgents : findBlockAgents.length
+        }
     }
 
     async filterAll(name :string  , operator_number :string , status :string) {
