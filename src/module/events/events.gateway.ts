@@ -7,17 +7,18 @@ import {
   MessageBody,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import {  Inject, Injectable, Req } from '@nestjs/common';
-import {  Cron, CronExpression, Interval,  } from '@nestjs/schedule';
+import { Inject, Injectable, Req } from '@nestjs/common';
+import { Cron, CronExpression, Interval } from '@nestjs/schedule';
 import { GroupsEntity } from 'src/entities/group.entity';
 import axios from 'axios';
-import {  parseStringPromise } from 'xml2js';
+import { parseStringPromise } from 'xml2js';
 import { dataGroupEntity } from 'src/entities/dataGroup.entity';
-import {
-  convertDate,
-} from 'src/utils/converters';
+import { convertDate } from 'src/utils/converters';
 import { agentslockEntity } from 'src/entities/agentslock.entity';
-import { fetchStatisticByGroup, operatorsWhere } from 'src/utils/fetchEvery1hour';
+import {
+  fetchStatisticByGroup,
+  operatorsWhere,
+} from 'src/utils/fetchEvery1hour';
 import { Telegraf } from 'telegraf';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -30,8 +31,7 @@ import { Cache } from 'cache-manager';
 })
 export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
   @WebSocketServer() server: Server;
-  readonly #_cache : Cache
-
+  readonly #_cache: Cache;
 
   async handleConnection(client: Socket) {
     // return 'Connected to the server.'
@@ -44,29 +44,25 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
 
   constructor(@Inject(CACHE_MANAGER) cache: Cache) {
     this.bot = new Telegraf('5994786340:AAHQOpj10D8Bi0XhgQpYD14hDoHogp3Q0z8');
-    this.#_cache = cache
+    this.#_cache = cache;
   }
 
-  @Cron("59 23 * * *") 
+  @Cron('59 23 * * *')
   fetchdata1() {
-    console.log('okkkk' , new Date());
-    fetchStatisticByGroup()
+    fetchStatisticByGroup();
   }
 
-
-
-  @Cron(CronExpression.EVERY_10_SECONDS) 
+  @Cron(CronExpression.EVERY_10_SECONDS)
   async handleAgentsAtTheMomentAddCash() {
     const operatorsWhereatThemoment :any = await Promise.all(await operatorsWhere(this.bot));
 
     await this.#_cache.set('lockOperators' , operatorsWhereatThemoment ,3600000)
 
   }
- 
 
   @SubscribeMessage('agentsLockAtTheMoment')
   async handleAgentsAtTheMoment() {
-    const data = await this.#_cache.get('lockOperators')
+    const data = await this.#_cache.get('lockOperators');
     return data;
   }
 
@@ -181,7 +177,7 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
     let calcStraggleCallCount = 0;
     let calcQueueDispatchedCallCoun = 0;
 
- findStatistik.forEach((e) => {
+    findStatistik.forEach((e) => {
       e.formdata = convertDate(e.create_data);
 
       sumAcceptedCallCount += +e.acceptedCallCount;
@@ -191,36 +187,33 @@ export class EventsGateway implements OnGatewayConnection, OnGatewayDisconnect {
       sumQueueDispatchedCallCoun += +e.queueDispatchedCallCoun;
     });
 
+    findStatistik.forEach((e) => {
+      if (!arrdate.includes(e.formdata)) {
+        arrdate.push(e.formdata);
+      }
+    });
 
-findStatistik.forEach(e => {
-  if (!arrdate.includes(e.formdata)) {
-    arrdate.push(e.formdata)
-  }
-})
-
-arrdate.forEach(e =>{
-  calcAcceptedCallCount = 0;
-  calcPresentedCallCount = 0;
-  calcLostCallCount = 0;
-  calcStraggleCallCount = 0;
-  calcQueueDispatchedCallCoun = 0;
-  findStatistik.forEach(n => {
-    
-    if(n.formdata == e) {
-      calcAcceptedCallCount += +n?.acceptedCallCount;
-      calcPresentedCallCount += +n?.presentedCallCount;
-      calcLostCallCount += +n?.lostCallCount;
-      calcStraggleCallCount += +n?.straggleCallCount;
-      calcQueueDispatchedCallCoun += +n?.queueDispatchedCallCoun;
-    }
-  })
-  arrAcceptedCallCount.push(calcAcceptedCallCount);
-  arrPresentedCallCount.push(calcPresentedCallCount);
-  arrLostCallCount.push(calcLostCallCount);
-  arrStraggleCallCount.push(calcStraggleCallCount);
-  arrQueueDispatchedCallCoun.push(calcQueueDispatchedCallCoun);
-})
-
+    arrdate.forEach((e) => {
+      calcAcceptedCallCount = 0;
+      calcPresentedCallCount = 0;
+      calcLostCallCount = 0;
+      calcStraggleCallCount = 0;
+      calcQueueDispatchedCallCoun = 0;
+      findStatistik.forEach((n) => {
+        if (n.formdata == e) {
+          calcAcceptedCallCount += +n?.acceptedCallCount;
+          calcPresentedCallCount += +n?.presentedCallCount;
+          calcLostCallCount += +n?.lostCallCount;
+          calcStraggleCallCount += +n?.straggleCallCount;
+          calcQueueDispatchedCallCoun += +n?.queueDispatchedCallCoun;
+        }
+      });
+      arrAcceptedCallCount.push(calcAcceptedCallCount);
+      arrPresentedCallCount.push(calcPresentedCallCount);
+      arrLostCallCount.push(calcLostCallCount);
+      arrStraggleCallCount.push(calcStraggleCallCount);
+      arrQueueDispatchedCallCoun.push(calcQueueDispatchedCallCoun);
+    });
 
     return {
       arrdate,
@@ -236,7 +229,6 @@ arrdate.forEach(e =>{
       sumQueueDispatchedCallCoun,
     };
   }
-
 
   @SubscribeMessage('statictikGroup')
   async handleStatictikDataGroup(@MessageBody() data: { group_id: string }) {
@@ -266,7 +258,7 @@ arrdate.forEach(e =>{
     let calcStraggleCallCount = 0;
     let calcQueueDispatchedCallCoun = 0;
 
-finGroupStatic.forEach((e) => {
+    finGroupStatic.forEach((e) => {
       e.formdata = convertDate(e.create_data);
 
       sumAcceptedCallCount += +e.acceptedCallCount;
@@ -275,40 +267,34 @@ finGroupStatic.forEach((e) => {
       sumStraggleCallCount += +e.straggleCallCount;
       sumQueueDispatchedCallCoun += +e.queueDispatchedCallCoun;
     });
-   
-    finGroupStatic.forEach(e => {
-  if (!arrdate.includes(e.formdata)) {
-    arrdate.push(e.formdata)
-  }
-})
 
-arrdate.forEach(e =>{
-  calcAcceptedCallCount = 0;
-  calcPresentedCallCount = 0;
-  calcLostCallCount = 0;
-  calcStraggleCallCount = 0;
-  calcQueueDispatchedCallCoun = 0;
-  finGroupStatic.forEach(n => {
-    
-    if(n.formdata == e) {
-      calcAcceptedCallCount += +n?.acceptedCallCount;
-      calcPresentedCallCount += +n?.presentedCallCount;
-      calcLostCallCount += +n?.lostCallCount;
-      calcStraggleCallCount += +n?.straggleCallCount;
-      calcQueueDispatchedCallCoun += +n?.queueDispatchedCallCoun;
-    }
-  })
-  arrAcceptedCallCount.push(calcAcceptedCallCount);
-  arrPresentedCallCount.push(calcPresentedCallCount);
-  arrLostCallCount.push(calcLostCallCount);
-  arrStraggleCallCount.push(calcStraggleCallCount);
-  arrQueueDispatchedCallCoun.push(calcQueueDispatchedCallCoun);
-})
+    finGroupStatic.forEach((e) => {
+      if (!arrdate.includes(e.formdata)) {
+        arrdate.push(e.formdata);
+      }
+    });
 
-
-
-
-
+    arrdate.forEach((e) => {
+      calcAcceptedCallCount = 0;
+      calcPresentedCallCount = 0;
+      calcLostCallCount = 0;
+      calcStraggleCallCount = 0;
+      calcQueueDispatchedCallCoun = 0;
+      finGroupStatic.forEach((n) => {
+        if (n.formdata == e) {
+          calcAcceptedCallCount += +n?.acceptedCallCount;
+          calcPresentedCallCount += +n?.presentedCallCount;
+          calcLostCallCount += +n?.lostCallCount;
+          calcStraggleCallCount += +n?.straggleCallCount;
+          calcQueueDispatchedCallCoun += +n?.queueDispatchedCallCoun;
+        }
+      });
+      arrAcceptedCallCount.push(calcAcceptedCallCount);
+      arrPresentedCallCount.push(calcPresentedCallCount);
+      arrLostCallCount.push(calcLostCallCount);
+      arrStraggleCallCount.push(calcStraggleCallCount);
+      arrQueueDispatchedCallCoun.push(calcQueueDispatchedCallCoun);
+    });
 
     // let sum1AcceptedCallCount = 6058;
     // let sum1PresentedCallCount = 4350;

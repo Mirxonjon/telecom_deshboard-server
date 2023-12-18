@@ -12,16 +12,15 @@ export const formatSecondsToTime = (seconds) => {
   const minutes = Math.floor((seconds % 3600) / 60);
   const remainingSeconds = (seconds % 60).toFixed(3);
 
-  const formattedTime = `${hours.toString().padStart(2, "0")}:${minutes
+  const formattedTime = `${hours.toString().padStart(2, '0')}:${minutes
     .toString()
-    .padStart(2, "0")}:${remainingSeconds
+    .padStart(2, '0')}:${remainingSeconds
     .toString()
-    .padStart(6, "0")
+    .padStart(6, '0')
     .slice(0, 2)}`;
 
   return formattedTime;
 };
-
 
 const month_return = {
   1: 31,
@@ -75,7 +74,7 @@ export const completionDate = (startDate: Date, monthLimit: number): string => {
 };
 
 export const convertorDateToDay = (date: string): number => {
-  const dateArr = date.split(' ');
+  const dateArr = date.split('.');
   let sumDay = +dateArr[0];
 
   for (let i = 1; i <= +dateArr[1]; i++) {

@@ -7,7 +7,7 @@ import { ApiOAuth2, SwaggerModule } from '@nestjs/swagger';
 import { swaggerConfig } from './config/swagger';
 import * as cors from 'cors';
 import { fetchEvery5s } from './utils/fetcheEvery5s';
-import { fetchStatisticByGroup , operatorsWhere } from './utils/fetchEvery1hour';
+import { fetchStatisticByGroup, operatorsWhere } from './utils/fetchEvery1hour';
 import { Cron, CronExpression } from '@nestjs/schedule';
 
 async function bootstrap() {
@@ -37,7 +37,6 @@ async function bootstrap() {
 
   //   } , 5000 )
   // operatorsWhere()
-
 
   const host = config.getOrThrow<string>('app.host');
   const port = config.getOrThrow<number>('app.port');

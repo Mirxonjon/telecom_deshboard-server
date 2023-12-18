@@ -3,7 +3,7 @@ import { EventsGateway } from './events.gateway';
 import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
-  imports: [    CacheModule.register()],
+  imports: [CacheModule.register()],
   controllers: [],
   providers: [EventsGateway],
 })

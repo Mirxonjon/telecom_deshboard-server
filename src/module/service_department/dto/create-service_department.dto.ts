@@ -1,7 +1,7 @@
 import { IsString, IsNotEmpty, MaxLength } from 'class-validator';
 
-export class UpdateUsersDto {
+export class CreateServiceDepartmentDto {
   @IsString()
   @IsNotEmpty()
-  status: string;
+  title: string;
 }
